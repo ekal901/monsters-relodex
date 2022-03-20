@@ -1,14 +1,16 @@
 import { Component } from 'react'
 
-import logo from './logo.svg';
 import './App.css';
+import CardList from './components/card-list/card-list.component';
+import SearchBox from './components/search-box/search-box.component';
 
 class App extends Component {
   constructor() {
     super();
 
     this.state = {
-      monsters: []
+      monsters: [],
+      searchField: ''
     }
   }
 
@@ -27,27 +29,32 @@ class App extends Component {
     ))
   }
 
+  onSearchChange = (e) => {
+    const searchField = e.target.value.toLocaleLowerCase();
+    
+    this.setState(() => {
+      return {searchField}
+    })
+  }
+
   render() {
+    // destructuring
+    const {monsters, searchField} = this.state;
+    const {onSearchChange} = this;
+
+    // when you modify array, you use new Array
+    const filteredMonsters = monsters.filter((monster, index) => {
+      return monster.name.toLocaleLowerCase().includes(searchField);
+    })
+
     return (
       <div className="App">
-        <input 
-          type="search" 
-          className='search-box' 
-          placeholder='search Monsters' 
-          onChange={(e) => {
-            const searchString = e.target.value.toLocaleLowerCase();
-            // when you modify array, you use new Array
-            const filteredMonsters = this.state.monsters.filter((monster, index) => {
-              return monster.name.toLocaleLowerCase().includes(searchString);
-            })
-            this.setState(() => {
-              return {monsters: filteredMonsters}
-            })
-          }} 
+        <SearchBox 
+            onChangeHandler={onSearchChange} 
+            placeholder='search Monsters'
+            className='search-box'
         />
-        {this.state.monsters.map((monster) => {
-          return <div key={monster.id}><h1>{monster.name}</h1></div>
-        })}
+        <CardList monsters={filteredMonsters} />
       </div>
     );
   }
